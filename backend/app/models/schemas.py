@@ -133,6 +133,12 @@ class BugHuntProblemDetail(BaseModel):
     tags: list[str]
 
 
+class AnswerResponse(BaseModel):
+    """题目答案响应"""
+    problem_id: str
+    answer: str
+
+
 class JudgeRequest(BaseModel):
     """用户提交答题请求"""
     problem_id: str

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import BugHuntProblemSummary, BugHuntProblemDetail, JudgeRequest, JudgeResponse
+from app.models.schemas import BugHuntProblemSummary, BugHuntProblemDetail, JudgeRequest, JudgeResponse, AnswerResponse
 from app.services.bug_hunt_service import judge_answer
 
 logger = logging.getLogger(__name__)
@@ -69,6 +69,18 @@ async def get_problem(problem_id: str):
         language=p["language"],
         tags=p["tags"],
     )
+
+
+@bug_hunt_router.get(
+    "/api/bug-hunt/problems/{problem_id}/answer",
+    response_model=AnswerResponse,
+)
+async def get_answer(problem_id: str):
+    """返回题目的完整解答，供用户答题后查看。"""
+    p = _PROBLEMS.get(problem_id)
+    if p is None:
+        raise HTTPException(status_code=404, detail=f"题目 {problem_id} 不存在")
+    return AnswerResponse(problem_id=problem_id, answer=p["answer"])
 
 
 @bug_hunt_router.post(
