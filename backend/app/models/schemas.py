@@ -4,6 +4,8 @@ Pydantic 数据模型定义
 定义 API 请求和响应的数据模型，用于数据验证和序列化。
 """
 
+from typing import Literal, Optional
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -129,3 +131,20 @@ class BugHuntProblemDetail(BaseModel):
     code: str
     language: str
     tags: list[str]
+
+
+class JudgeRequest(BaseModel):
+    """用户提交答题请求"""
+    problem_id: str
+    selected_lines: list[int] = Field(..., min_length=1, description="至少选择 1 行")
+    user_explanation: str = Field(..., min_length=5, description="说明不少于 5 个字符")
+
+
+class JudgeResponse(BaseModel):
+    """AI 判分响应"""
+    verdict: Literal["correct", "partial", "wrong", "error"]
+    score: int = Field(..., ge=0, le=100)
+    feedback: str
+    hint: Optional[str] = None
+    answer: None = None
+    real_world_link: Optional[str] = None

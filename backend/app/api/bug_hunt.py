@@ -11,7 +11,8 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import BugHuntProblemSummary, BugHuntProblemDetail
+from app.models.schemas import BugHuntProblemSummary, BugHuntProblemDetail, JudgeRequest, JudgeResponse
+from app.services.bug_hunt_service import judge_answer
 
 logger = logging.getLogger(__name__)
 
@@ -68,3 +69,31 @@ async def get_problem(problem_id: str):
         language=p["language"],
         tags=p["tags"],
     )
+
+
+@bug_hunt_router.post(
+    "/api/bug-hunt/judge",
+    response_model=JudgeResponse,
+)
+async def judge(request: JudgeRequest):
+    """
+    对用户提交的答题进行 AI 判分。
+
+    - problem_id 不存在 → 404
+    - AI 调用本身抛出未捕获异常 → 503
+    - service 内部兜底已返回 verdict='error' 的字典时，直接透传给前端（不再包装）
+    """
+    if request.problem_id not in _PROBLEMS:
+        raise HTTPException(status_code=404, detail=f"题目 {request.problem_id} 不存在")
+
+    try:
+        result = judge_answer(
+            problem_id=request.problem_id,
+            selected_lines=request.selected_lines,
+            user_explanation=request.user_explanation,
+        )
+    except Exception as exc:
+        logger.error("judge 端点：service 层未捕获异常 | %s", exc)
+        raise HTTPException(status_code=503, detail="AI 判分服务暂时不可用，请稍后重试")
+
+    return JudgeResponse(**result)
