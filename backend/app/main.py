@@ -7,6 +7,7 @@ FastAPI application with CORS configuration for frontend communication.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
+from app.api.bug_hunt import bug_hunt_router
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -28,9 +29,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-# Register API router
+# Register API routers
 # Requirements: 9.1
 app.include_router(router)
+app.include_router(bug_hunt_router)
 
 
 @app.get("/")

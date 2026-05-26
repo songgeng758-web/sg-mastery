@@ -79,3 +79,53 @@ class CodeExecutionResponse(BaseModel):
         if not v or not v.strip():
             raise ValueError('消息内容不能为空')
         return v
+
+
+# ── AI 类比讲解相关模型 ──────────────────────────────────────────────────────
+
+class ExplainRequest(BaseModel):
+    """AI 讲解请求：前端传入要解释的技术概念名称"""
+    topic: str = Field(
+        ...,
+        min_length=1,
+        max_length=200,
+        description="要解释的技术概念",
+        examples=["秒懂前后端通信", "CPU vs GPU"]
+    )
+
+
+class ExplainData(BaseModel):
+    """AI 讲解内容体"""
+    content: str = Field(..., description="DeepSeek 生成的类比讲解文字")
+
+
+class UsageInfo(BaseModel):
+    """Token 消耗信息"""
+    tokens: int = Field(..., description="本次调用消耗的总 token 数")
+
+
+class ExplainResponse(BaseModel):
+    """AI 讲解响应：统一包装成功/失败两种情况"""
+    success: bool = Field(..., description="调用是否成功")
+    data: ExplainData = Field(..., description="讲解内容")
+    usage: UsageInfo = Field(..., description="token 消耗")
+
+
+# ── 代码扫雷相关模型 ─────────────────────────────────────────────────────────
+
+class BugHuntProblemSummary(BaseModel):
+    """题目列表项（用于题库列表页，不含题目代码和答案）"""
+    id: str
+    title: str
+    tags: list[str]
+    language: str
+
+
+class BugHuntProblemDetail(BaseModel):
+    """题目详情（用于答题页，不含 answer/expected_bug_lines/bug_essence）"""
+    id: str
+    title: str
+    description: str
+    code: str
+    language: str
+    tags: list[str]
