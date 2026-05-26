@@ -1,0 +1,175 @@
+{
+  "problems": [
+    {
+      "id": "bh_001",
+      "title": "底薪 5000 元的员工还是被扣了税",
+      "description": "薪资系统规则：底薪精确等于 5000 元享受免税额度，超过 5000 才按 10% 计税。跑完脚本，HR 反馈有几名底薪明明是 5000 的员工，tax 列显示的不是 0，照样扣了税。",
+      "code": "import pandas as pd\n\ndf = pd.read_csv(\"payroll.csv\")  # 列：emp_id, name, base_salary\n\n# 底薪精确等于 5000 元享受免税额度，否则按 10% 计税\ndf[\"tax\"] = df[\"base_salary\"].apply(lambda s: 0 if s == 5000 else round(s * 0.1, 2))\n\nprint(df[[\"emp_id\", \"name\", \"base_salary\", \"tax\"]])",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "浮点精度",
+        "apply"
+      ],
+      "expected_bug_lines": [
+        6
+      ],
+      "bug_essence": "CSV 里读出的 5000 在内存中是浮点数（float），因 IEEE 754 表示误差可能是 5000.0000000001 或 4999.9999999999。s == 5000 做精确等值比较，这些员工全部命中 else 分支被扣税。应改用 abs(s - 5000) < 0.01，或在读取时用 Decimal 处理薪资列。",
+      "answer": "第 6 行的问题：浮点数不能用 == 做精确等值比较。payroll.csv 里的 5000 读进来是 float，IEEE 754 浮点表示可能带微小误差（如 5000.000000000001），导致 s == 5000 为 False，员工命中 else 分支照样扣税。\n\n修复方式 1：容差比较\ndf[\"tax\"] = df[\"base_salary\"].apply(\n    lambda s: 0 if abs(s - 5000) < 0.01 else round(s * 0.1, 2)\n)\n\n修复方式 2：读取时转 Decimal\nfrom decimal import Decimal\ndf[\"base_salary\"] = df[\"base_salary\"].apply(lambda x: Decimal(str(x)))\n\n规则：涉及金额的等值判断，永远用容差比较或 Decimal，不用 == 直接比较 float。"
+    },
+    {
+      "id": "bh_002",
+      "title": "部门码 replace 空格后匹配率还是只有 60%",
+      "description": "从客户 Excel 导出的部门码导入 HCM 系统做匹配校验。上一版脚本因为有空格匹配失败，同事已经加了 replace(\" \", \"\") 清洗。但跑完还是 40% 未匹配，把未匹配的几条复制出来肉眼根本看不出问题在哪。",
+      "code": "import pandas as pd\n\ndf = pd.read_csv(\"dept_import.csv\")\n# dept_code 含全角空格（\\u3000）或不间断空格（\\xa0），肉眼看不出来\n\ndf[\"dept_code\"] = df[\"dept_code\"].str.replace(\" \", \"\")\n\nstandard = [\"HR001\", \"FIN002\", \"IT003\", \"OPS004\"]\nunmatched = df[~df[\"dept_code\"].isin(standard)]\nprint(f\"未匹配部门码：{len(unmatched)} 条\")",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "字符串处理",
+        "Unicode空格"
+      ],
+      "expected_bug_lines": [
+        6
+      ],
+      "bug_essence": "str.replace(\" \", \"\") 只替换 ASCII 普通空格（U+0020）。Excel 导出时常夹带全角空格（U+3000）或不间断空格（U+00A0），这两种肉眼看和普通空格一样但字节不同，replace 对它们无效，dept_code 依然含不可见字符，匹配失败。应改用正则 str.replace(r\"\\s+\", \"\", regex=True)，\\s 匹配所有 Unicode 空白。",
+      "answer": "第 6 行的问题：replace(\" \", \"\") 只能消灭 ASCII 空格（U+0020）。Excel 把单元格里的全角空格（U+3000）或不间断空格（U+00A0）一起导出，这两种字符肉眼看不出来，但字节值不同，replace 完全不处理它们，dept_code 里仍然藏着不可见字符导致匹配失败。\n\n修复方式 1：正则 \\s+（推荐）\ndf[\"dept_code\"] = df[\"dept_code\"].str.replace(r\"\\s+\", \"\", regex=True)\n\n\\s 在 Python 的 Unicode 模式下匹配所有空白字符，包括 U+3000、U+00A0 等。\\n\\n修复方式 2：手动枚举\ndf[\"dept_code\"] = (df[\"dept_code\"]\n    .str.replace(\" \", \"\")      # ASCII 空格\n    .str.replace(\"\\u3000\", \"\") # 全角空格\n    .str.replace(\"\\xa0\", \"\")  # 不间断空格\n)\n\n遇到肉眼看不出差异的匹配失败，第一步先用 repr() 或 .encode() 查看原始字节，确认隐藏字符类型。"
+    },
+    {
+      "id": "bh_003",
+      "title": "薪资四舍五入后导出，结果还是有小数",
+      "description": "薪资结算脚本：计算每名员工的税前总薪资（底薪 × (1 + 奖金比例)）后需要四舍五入到两位小数再导出。但财务收到的 CSV 里薪资列仍然有六七位小数。",
+      "code": "import pandas as pd\n\ndf = pd.read_csv(\"salary.csv\")  # 列：emp_id, base_salary, bonus_rate\n\ndf[\"total\"] = df[\"base_salary\"] * (1 + df[\"bonus_rate\"])\ndf[\"total\"].apply(lambda x: round(x, 2))  # 保留两位小数\n\ndf.to_csv(\"salary_result.csv\", index=False)",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "apply",
+        "链式操作"
+      ],
+      "expected_bug_lines": [
+        6
+      ],
+      "bug_essence": "apply() 返回一个新的 Series，但结果没有赋值回 df[\"total\"]，原列未被修改。应改为 df[\"total\"] = df[\"total\"].apply(lambda x: round(x, 2))，或者直接用 df[\"total\"].round(2)。",
+      "answer": "第 6 行的问题：pandas 的 apply() 不会原地修改 Series，它返回一个新的 Series，但这里没有接收返回值。df[\"total\"] 一分未变，导出的仍是未四舍五入的结果。\n\n正确写法（两种）：\n# 方式 1：赋值回去\ndf[\"total\"] = df[\"total\"].apply(lambda x: round(x, 2))\n\n# 方式 2：pandas 内置方法，更简洁\ndf[\"total\"] = df[\"total\"].round(2)"
+    },
+    {
+      "id": "bh_004",
+      "title": "待分配部门的员工查不出来",
+      "description": "HCM 批量导入员工数据后，需要找出 dept_id 字段为空（尚未分配部门）的员工，打印名单交给 HR 补录。代码运行后输出「待分配部门人数：0」，但 HR 确认至少有 5 名新员工没有部门。",
+      "code": "import pandas as pd\n\ndf = pd.read_csv(\"employees.csv\")  # 列：emp_id, name, dept_id, salary\n\n# 找出尚未分配部门的员工\nunassigned = df[df[\"dept_id\"] == None]\nprint(f\"待分配部门人数：{len(unassigned)}\")",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "NaN",
+        "空值判断"
+      ],
+      "expected_bug_lines": [
+        6
+      ],
+      "bug_essence": "pandas 缺失值以 NaN 存储，NaN == None 永远返回 False，导致筛选结果恒为空。应改用 df[\"dept_id\"].isna()。",
+      "answer": "第 6 行的问题：pandas 中缺失值以 NaN（Not a Number）形式存储，不是 Python 的 None。用 == 做等值判断时，NaN == None 永远返回 False，所以 unassigned 永远是空 DataFrame。\n\n正确写法：\nunassigned = df[df[\"dept_id\"].isna()]\n\n或等效：\nunassigned = df[df[\"dept_id\"].isnull()]\n\n规则：凡是判断 pandas 列是否为空，一律用 .isna()，绝不用 == None 或 == np.nan。"
+    },
+    {
+      "id": "bh_005",
+      "title": "搜含百分号的特殊工号，搜出来一堆不相关的人",
+      "description": "系统遗留问题：早期录入的部分员工工号含字面量百分号（如 E%5001、E%5002），需要把这批人查出来统一修正工号。运行查询后返回了几百行，随便翻了几条工号根本没有百分号，明显搜多了。",
+      "code": "-- 系统遗留：部分员工工号含字面量百分号，如 E%5001\n-- 需要精确搜出这批特殊工号的员工\n\nSELECT emp_id, name, dept_id\nFROM employees\nWHERE emp_id LIKE '%E%5%';",
+      "language": "sql",
+      "tags": [
+        "SQL",
+        "LIKE",
+        "ESCAPE",
+        "特殊字符"
+      ],
+      "expected_bug_lines": [
+        6
+      ],
+      "bug_essence": "LIKE 模式里的 % 被当作通配符（匹配任意字符串），而不是字面量百分号。'%E%5%' 实际含义是「含 E 且含 5 的任意字符串」，返回了大量工号中碰巧包含 E 和 5 的普通员工。应用 ESCAPE 指定转义字符，将字面量 % 写成 \\%：LIKE '%E\\%5\\%%' ESCAPE '\\'。",
+      "answer": "第 6 行的问题：SQL LIKE 模式中 % 是通配符，代表任意个任意字符。'%E%5%' 被解析为「含 E 且含 5 的字符串」，所有工号里只要有字母 E 和数字 5 的员工都被选中，完全不是想要的「工号里有字面量 %」。\n\n正确写法：用 ESCAPE 子句声明转义字符，然后在字面量 % 前加该转义字符：\nWHERE emp_id LIKE '%E\\%5\\%%' ESCAPE '\\';\n\n解读：\\% 表示字面量百分号，% 本身仍是通配符。\n'%E\\%5\\%%' 含义：\n  前缀 %  → 任意字符（工号前缀）\n  E       → 字面量 E\n  \\%      → 字面量百分号\n  5       → 字面量 5\n  \\%      → 字面量百分号\n  后缀 %  → 任意字符（工号后缀）\n\n不同数据库 ESCAPE 语法相同，转义字符可自定义，常用 \\ 或 !"
+    },
+    {
+      "id": "bh_006",
+      "title": "生成花名册，员工数对不上，少了 23 人",
+      "description": "需要把员工表和部门表合并，生成包含部门名称的完整花名册导给客户。输出后客户说人数不对，比员工表少了 23 人。这 23 人都是刚入职、部门还在走审批流程的新员工，dept_id 暂时为 NULL。",
+      "code": "import pandas as pd\n\nemployees = pd.read_csv(\"employees.csv\")   # 500 名员工，含部分 dept_id=NULL\ndepartments = pd.read_csv(\"departments.csv\")\n\nroster = pd.merge(employees, departments, on=\"dept_id\")\n\nprint(f\"员工总数：{len(employees)}\")\nprint(f\"花名册行数：{len(roster)}\")  # 比员工总数少 23",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "merge",
+        "left join"
+      ],
+      "expected_bug_lines": [
+        6
+      ],
+      "bug_essence": "pd.merge() 默认 how='inner'，只保留两表都能匹配上的行。dept_id 为 NULL 或在 departments 表中找不到的员工会被丢弃。应改为 how='left'，保留所有员工，没有部门的字段填 NaN。",
+      "answer": "第 6 行的问题：pd.merge() 不指定 how 参数时默认是 how='inner'（内连接），只保留两张表中 dept_id 都能对上的行。23 名 dept_id 为 NULL 的新员工在 departments 表中找不到匹配，直接被丢弃。\n\n正确写法：\nroster = pd.merge(employees, departments, on='dept_id', how='left')\n\nhow='left' 表示左连接：以左表（employees）为基准，右表（departments）匹配不上的字段填 NaN，保证所有员工都出现在花名册里。"
+    },
+    {
+      "id": "bh_007",
+      "title": "入职日期筛选结果乱序，早于截止日的反而没选上",
+      "description": "从 HCM 系统导出的 onboarding.csv，hire_date 列是字符串格式（如 2024-03-15）。需要筛出 2024 年上半年（7 月 1 日前）入职的员工。运行后结果数量明显偏少，且有些明明是 3 月入职的员工没被选入。",
+      "code": "import pandas as pd\n\ndf = pd.read_csv(\"onboarding.csv\")\n# hire_date 示例值：2024-03-15（str 类型，read_csv 不自动解析日期）\n\ncutoff = pd.Timestamp(\"2024-07-01\")\nfirst_half = df[df[\"hire_date\"] < cutoff]\nprint(f\"上半年入职：{len(first_half)} 人\")",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "datetime",
+        "类型转换"
+      ],
+      "expected_bug_lines": [
+        7
+      ],
+      "bug_essence": "hire_date 列是字符串类型，直接与 pd.Timestamp 比较时走字符串字典序而非日期大小，结果不可预期。应先调用 pd.to_datetime(df[\"hire_date\"]) 转换类型再比较。",
+      "answer": "第 7 行的问题：read_csv 读入的 hire_date 是字符串（str），与 pd.Timestamp 做 < 比较时 pandas 实际上在做字符串字典序比较，不是日期比较。比如 2024-10-01 字典序小于 2024-07-01（按字符逐位比较），结果完全混乱。\n\n正确写法：\ndf[\"hire_date\"] = pd.to_datetime(df[\"hire_date\"])\nfirst_half = df[df[\"hire_date\"] < cutoff]\n\n或一行搞定：\nfirst_half = df[pd.to_datetime(df[\"hire_date\"]) < cutoff]"
+    },
+    {
+      "id": "bh_008",
+      "title": "批量复工操作执行后，on_leave 人数没变",
+      "description": "节后复工：把所有状态为 on_leave（休假中）的员工批量改回 active。运行脚本后再查 status 分布，on_leave 的人数还是原来那么多，感觉代码没生效。",
+      "code": "import pandas as pd\n\ndf = pd.read_csv(\"employees.csv\")  # 列：emp_id, name, status\n# status 取值：active / resigned / on_leave\n\n# 节后复工，批量改回 active\ndf[df[\"status\"] == \"on_leave\"][\"status\"] = \"active\"\n\nprint(df[\"status\"].value_counts())  # on_leave 数量没有变化",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "链式索引",
+        "loc"
+      ],
+      "expected_bug_lines": [
+        7
+      ],
+      "bug_essence": "链式索引赋值：df[条件][\"status\"] = ... 先产生一个临时副本，赋值作用在副本上，原始 df 不受影响。应改用 df.loc[df[\"status\"] == \"on_leave\", \"status\"] = \"active\"。",
+      "answer": "第 7 行的问题：df[df[\"status\"] == \"on_leave\"] 返回的是原 DataFrame 的一个临时对象，在上面再做 [\"status\"] = \"active\" 的赋值，修改落在临时对象上，原始 df 没有任何变化。pandas 通常会打印 SettingWithCopyWarning 警告，但很多人忽略了。\n\n正确写法：\ndf.loc[df[\"status\"] == \"on_leave\", \"status\"] = \"active\"\n\ndf.loc[行条件, 列名] = 值 是 pandas 官方推荐的按条件修改列值的方式，保证直接操作原始 DataFrame。记住：凡是要修改 df 某个子集的值，一律用 .loc[]，不要链式索引。"
+    },
+    {
+      "id": "bh_009",
+      "title": "月度漏打卡名单查出来是空的",
+      "description": "月度考勤报表：需要查出本月没有任何打卡记录的员工，让 HR 逐一核实是否漏打卡。punch_records 表是门禁系统实时同步的，本月因一台考勤机固件故障，写入了若干 emp_id 为 NULL 的脏记录（设备无法识别工卡）。查询跑完返回 0 行，但 HR 明确反映至少有 8 名员工本月一次都没打过卡。",
+      "code": "-- 月度考勤：找出本月没打过卡的员工\n-- punch_records 因设备故障混入 emp_id=NULL 的脏记录\n\nSELECT emp_id, name\nFROM employees\nWHERE emp_id NOT IN (\n    SELECT emp_id\n    FROM punch_records\n    WHERE punch_month = '2024-06'\n);",
+      "language": "sql",
+      "tags": [
+        "SQL",
+        "NOT IN",
+        "NULL陷阱"
+      ],
+      "expected_bug_lines": [
+        6
+      ],
+      "bug_essence": "NOT IN 子查询的结果集中含有 NULL（设备故障脏记录的 emp_id 为 NULL）。SQL 三值逻辑：任何值 NOT IN (含 NULL 的集合) 结果都是 UNKNOWN，WHERE 只保留 TRUE，因此返回 0 行。应在子查询加 AND emp_id IS NOT NULL 过滤脏数据，或改用 NOT EXISTS。",
+      "answer": "第 6 行的问题：punch_records 里有 emp_id = NULL 的脏记录（设备故障写入）。SQL 的三值逻辑中：\n  1 NOT IN (2, 3, NULL) → UNKNOWN（因为无法确认 1 是否等于 NULL）\n  WHERE 只保留结果为 TRUE 的行，UNKNOWN 被过滤掉\n  → 整张 employees 表没有一行通过 WHERE，返回空集\n\n修复方式 1：子查询过滤脏数据（NULL）\nSELECT emp_id, name\nFROM employees\nWHERE emp_id NOT IN (\n    SELECT emp_id\n    FROM punch_records\n    WHERE punch_month = '2024-06'\n    AND emp_id IS NOT NULL\n);\n\n修复方式 2：改用 NOT EXISTS（天然免疫 NULL 陷阱，推荐）\nSELECT e.emp_id, e.name\nFROM employees e\nWHERE NOT EXISTS (\n    SELECT 1 FROM punch_records p\n    WHERE p.emp_id = e.emp_id\n    AND p.punch_month = '2024-06'\n);\n\n经验：只要子查询来源表的关联列可能含 NULL，一律用 NOT EXISTS 替代 NOT IN。"
+    },
+    {
+      "id": "bh_010",
+      "title": "第二个员工的权限列表比第一个多一项",
+      "description": "批量创建新入职员工账号时，调用工具函数初始化权限列表。跑完发现 rec1 和 rec2 的 permissions 不一样：rec1 有 1 个权限，rec2 有 2 个。两个都是普通新员工，不应该有差异。",
+      "code": "def create_employee_record(emp_id, name, permissions=[]):\n    permissions.append(\"basic_access\")\n    return {\n        \"emp_id\": emp_id,\n        \"name\": name,\n        \"permissions\": permissions\n    }\n\nrec1 = create_employee_record(\"E001\", \"张伟\")\nrec2 = create_employee_record(\"E002\", \"李娜\")\n\nprint(rec1[\"permissions\"])  # 期望 [\"basic_access\"]\nprint(rec2[\"permissions\"])  # 期望 [\"basic_access\"]，实际多一项",
+      "language": "python",
+      "tags": [
+        "Python",
+        "可变默认参数",
+        "列表"
+      ],
+      "expected_bug_lines": [
+        1
+      ],
+      "bug_essence": "函数签名中 permissions=[] 是可变默认参数。Python 在函数定义时只创建一次这个列表，后续每次调用都共享同一个对象。每次 append 都会累积到同一个列表上。应改为 permissions=None，函数内 if permissions is None: permissions = []。",
+      "answer": "第 1 行的问题：Python 的函数默认参数在函数定义时只求值一次。permissions=[] 这个列表对象在整个程序生命周期内只有一个，所有不传 permissions 参数的调用都共享它。rec1 调用后列表是 [\"basic_access\"]，rec2 调用时继续往同一个列表 append，变成 [\"basic_access\", \"basic_access\"]。\n\n正确写法：\ndef create_employee_record(emp_id, name, permissions=None):\n    if permissions is None:\n        permissions = []\n    permissions.append(\"basic_access\")\n    return {\"emp_id\": emp_id, \"name\": name, \"permissions\": permissions}\n\n规则：函数默认参数如果是列表、字典、集合等可变类型，一律用 None 作默认值。"
+    }
+  ]
+}
