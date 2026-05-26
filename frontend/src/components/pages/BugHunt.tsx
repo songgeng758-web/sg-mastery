@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import CodeBlock from '../common/CodeBlock';
 import PageTransition from '../common/PageTransition';
+import JudgeResult from '../bug-hunt/JudgeResult';
 import { apiService } from '../../services/api';
 import type { BugHuntProblemSummary, BugHuntProblemDetail, JudgeResponse } from '../../types';
 
@@ -237,70 +238,12 @@ export default function BugHunt() {
 
             {/* 判分结果 */}
             {phase === 'result' && judgeResult && (
-              <div className={`rounded-xl border p-4 mb-4 ${
-                judgeResult.verdict === 'correct'
-                  ? 'bg-green-900/20 border-green-500/40'
-                  : judgeResult.verdict === 'partial'
-                  ? 'bg-yellow-900/20 border-yellow-500/40'
-                  : 'bg-red-900/20 border-red-500/40'
-              }`}>
-                {/* 顶栏：verdict 标签 + 分数 */}
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`text-sm font-semibold ${
-                    judgeResult.verdict === 'correct' ? 'text-green-400'
-                    : judgeResult.verdict === 'partial' ? 'text-yellow-400'
-                    : 'text-red-400'
-                  }`}>
-                    {judgeResult.verdict === 'correct' ? '✓ 答对了！'
-                    : judgeResult.verdict === 'partial' ? '△ 部分正确'
-                    : '✗ 方向不对'}
-                  </span>
-                  <span className="text-xl font-bold text-white">{judgeResult.score} 分</span>
-                </div>
-
-                {/* feedback */}
-                <p className="text-gray-200 text-sm leading-relaxed">{judgeResult.feedback}</p>
-
-                {/* hint */}
-                {judgeResult.hint && (
-                  <p className="text-gray-400 text-xs border-t border-white/10 pt-2 mt-3">
-                    提示：{judgeResult.hint}
-                  </p>
-                )}
-
-                {/* real_world_link（correct 时显示） */}
-                {judgeResult.verdict === 'correct' && judgeResult.real_world_link && (
-                  <p className="text-gray-400 text-xs border-t border-white/10 pt-2 mt-3">
-                    实战联系：{judgeResult.real_world_link}
-                  </p>
-                )}
-
-                {/* 操作按钮（wrong/partial 且未看答案时） */}
-                {judgeResult.verdict !== 'correct' && !answer && (
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={handleRetry}
-                      className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors"
-                    >
-                      再试一次
-                    </button>
-                    <button
-                      onClick={handleGiveUp}
-                      className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-700/40 hover:bg-gray-600/40 text-gray-400 hover:text-gray-200 transition-colors"
-                    >
-                      我放弃，看答案
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 完整解答 */}
-            {answer && (
-              <div className="bg-gray-800/60 border border-gray-600/40 rounded-xl p-4">
-                <p className="text-xs text-gray-500 mb-2 font-medium">完整解答</p>
-                <p className="text-gray-200 text-sm leading-relaxed whitespace-pre-line">{answer}</p>
-              </div>
+              <JudgeResult
+                result={judgeResult}
+                onRetry={handleRetry}
+                onGiveUp={handleGiveUp}
+                answer={answer ?? undefined}
+              />
             )}
           </>
         )}
