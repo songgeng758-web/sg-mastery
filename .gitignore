@@ -1,0 +1,55 @@
+# Frontend (Node.js / React / Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/.DS_Store
+frontend/coverage/
+frontend/.nyc_output/
+
+# Backend (Python / FastAPI)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+backend/.Python
+backend/venv/
+backend/env/
+backend/ENV/
+backend/.venv/
+backend/.env
+backend/pip-log.txt
+backend/pip-delete-this-directory.txt
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/dist/
+backend/build/
+backend/*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

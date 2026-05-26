@@ -1,0 +1,109 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import NavigationBar from './NavigationBar';
+
+/**
+ * NavigationBar 组件单元测试
+ * 
+ * 验证需求: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7
+ */
+describe('NavigationBar', () => {
+  /**
+   * 辅助函数：在路由上下文中渲染组件
+   */
+  const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
+    window.history.pushState({}, 'Test page', route);
+    return render(ui, { wrapper: BrowserRouter });
+  };
+
+  it('应该渲染三个导航 Tab', () => {
+    renderWithRouter(<NavigationBar />);
+
+    // 验证需求 3.2: 包含三个 Tab
+    expect(screen.getByLabelText('知识补给站')).toBeInTheDocument();
+    expect(screen.getByLabelText('代码扫雷')).toBeInTheDocument();
+    expect(screen.getByLabelText('HCM 实战')).toBeInTheDocument();
+  });
+
+  it('应该为每个 Tab 显示对应的图标', () => {
+    renderWithRouter(<NavigationBar />);
+
+    // 验证需求 3.7: 显示图标
+    const tabs = screen.getAllByRole('button');
+    expect(tabs).toHaveLength(3);
+
+    // 每个 Tab 应该包含一个 SVG 图标
+    tabs.forEach(tab => {
+      const icon = tab.querySelector('svg');
+      expect(icon).toBeInTheDocument();
+    });
+  });
+
+  it('应该高亮显示当前激活的 Tab', () => {
+    renderWithRouter(<NavigationBar />, { route: '/knowledge' });
+
+    // 验证需求 3.5: 高亮当前激活的 Tab
+    const knowledgeTab = screen.getByLabelText('知识补给站');
+    expect(knowledgeTab).toHaveClass('text-blue-400');
+    expect(knowledgeTab).toHaveAttribute('aria-current', 'page');
+
+    // 其他 Tab 不应该被高亮
+    const debugTab = screen.getByLabelText('代码扫雷');
+    expect(debugTab).toHaveClass('text-gray-400');
+    expect(debugTab).not.toHaveAttribute('aria-current');
+  });
+
+  it('应该在点击 Tab 时触发回调函数', () => {
+    const onTabChange = vi.fn();
+    renderWithRouter(<NavigationBar onTabChange={onTabChange} />);
+
+    // 验证需求 3.4: 处理 Tab 点击事件
+    const debugTab = screen.getByLabelText('代码扫雷');
+    fireEvent.click(debugTab);
+
+    expect(onTabChange).toHaveBeenCalledWith('debug');
+  });
+
+  it('应该应用毛玻璃效果样式', () => {
+    const { container } = renderWithRouter(<NavigationBar />);
+
+    // 验证需求 3.3, 10.6: 毛玻璃效果
+    const nav = container.querySelector('nav');
+    expect(nav).toHaveClass('backdrop-blur-lg');
+  });
+
+  it('应该固定在页面底部', () => {
+    const { container } = renderWithRouter(<NavigationBar />);
+
+    // 验证需求 3.1: 固定在底部
+    const nav = container.querySelector('nav');
+    expect(nav).toHaveClass('fixed', 'bottom-0');
+  });
+
+  it('应该使用深色主题配色', () => {
+    const { container } = renderWithRouter(<NavigationBar />);
+
+    // 验证需求 3.6: 深色主题
+    const nav = container.querySelector('nav');
+    expect(nav).toHaveClass('bg-gray-900/80');
+  });
+
+  it('应该根据路由自动判断激活的 Tab', () => {
+    renderWithRouter(<NavigationBar />, { route: '/debug' });
+
+    // 验证自动路由判断功能
+    const debugTab = screen.getByLabelText('代码扫雷');
+    expect(debugTab).toHaveClass('text-blue-400');
+    expect(debugTab).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('应该支持通过 activeTab 属性手动控制激活状态', () => {
+    renderWithRouter(<NavigationBar activeTab="practice" />, { route: '/knowledge' });
+
+    // 即使路由是 /knowledge，但 activeTab 指定为 practice
+    const practiceTab = screen.getByLabelText('HCM 实战');
+    expect(practiceTab).toHaveClass('text-blue-400');
+    expect(practiceTab).toHaveAttribute('aria-current', 'page');
+  });
+});
