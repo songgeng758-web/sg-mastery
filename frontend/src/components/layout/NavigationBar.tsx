@@ -43,7 +43,7 @@ const NAV_TABS: NavTab[] = [
     id: 'debug',
     label: '代码扫雷',
     icon: Bug,
-    path: '/debug',
+    path: '/bug-hunt',
   },
   {
     id: 'practice',
