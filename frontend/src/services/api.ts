@@ -4,7 +4,16 @@
  * 提供与后端 API 通信的方法
  */
 
-import type { CodeExecutionRequest, CodeExecutionResponse, ExplainResponse } from '../types';
+import type {
+  CodeExecutionRequest,
+  CodeExecutionResponse,
+  ExplainResponse,
+  BugHuntProblemSummary,
+  BugHuntProblemDetail,
+  JudgeRequest,
+  JudgeResponse,
+  AnswerResponse,
+} from '../types';
 
 /**
  * API 服务类
@@ -110,6 +119,36 @@ class ApiService {
     }
 
     return response.json() as Promise<ExplainResponse>;
+  }
+
+  // ── 代码扫雷（阶段 2）──────────────────────────────────────────────────────
+
+  async getBugHuntProblems(): Promise<BugHuntProblemSummary[]> {
+    const response = await fetch(`${this.baseURL}/api/bug-hunt/problems`);
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
+  }
+
+  async getBugHuntProblem(id: string): Promise<BugHuntProblemDetail> {
+    const response = await fetch(`${this.baseURL}/api/bug-hunt/problems/${id}`);
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
+  }
+
+  async judgeAnswer(req: JudgeRequest): Promise<JudgeResponse> {
+    const response = await fetch(`${this.baseURL}/api/bug-hunt/judge`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    });
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
+  }
+
+  async getBugHuntAnswer(id: string): Promise<AnswerResponse> {
+    const response = await fetch(`${this.baseURL}/api/bug-hunt/problems/${id}/answer`);
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
   }
 }
 

@@ -106,6 +106,46 @@ export interface CodeExecutionResponse {
   message: string;
 }
 
+// ── 代码扫雷（阶段 2）────────────────────────────────────────────────────────
+
+export interface BugHuntProblemSummary {
+  id: string;
+  title: string;
+  tags: string[];
+  language: string;
+}
+
+export interface BugHuntProblemDetail {
+  id: string;
+  title: string;
+  description: string;
+  code: string;
+  language: string;
+  tags: string[];
+}
+
+export interface JudgeRequest {
+  problem_id: string;
+  selected_lines: number[];
+  user_explanation: string;
+}
+
+export interface JudgeResponse {
+  verdict: 'correct' | 'partial' | 'wrong' | 'error';
+  score: number;
+  feedback: string;
+  hint: string | null;
+  answer: null;
+  real_world_link: string | null;
+}
+
+export interface AnswerResponse {
+  problem_id: string;
+  answer: string;
+}
+
+// ── 知识补给站 AI 讲解（阶段 1）──────────────────────────────────────────────
+
 /**
  * AI 类比讲解请求模型
  *
