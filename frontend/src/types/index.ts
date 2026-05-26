@@ -96,7 +96,7 @@ export interface CodeExecutionRequest {
 
 /**
  * 代码执行响应模型
- * 
+ *
  * 表示后端返回的代码执行结果
  */
 export interface CodeExecutionResponse {
@@ -104,4 +104,34 @@ export interface CodeExecutionResponse {
   status: 'success' | 'error';
   /** 执行结果描述信息 */
   message: string;
+}
+
+/**
+ * AI 类比讲解请求模型
+ *
+ * 对应后端 ExplainRequest，传入知识卡片标题作为讲解主题
+ */
+export interface ExplainRequest {
+  /** 要讲解的技术概念，通常为知识卡片标题 */
+  topic: string;
+}
+
+/**
+ * AI 类比讲解响应模型
+ *
+ * 对应后端 ExplainResponse，统一包装成功和失败两种情况
+ */
+export interface ExplainResponse {
+  /** 调用是否成功 */
+  success: boolean;
+  /** 讲解内容 */
+  data: {
+    /** DeepSeek 生成的五段式类比讲解文字 */
+    content: string;
+  };
+  /** Token 消耗信息 */
+  usage: {
+    /** 本次调用消耗的总 token 数 */
+    tokens: number;
+  };
 }

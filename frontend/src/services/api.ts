@@ -4,7 +4,7 @@
  * 提供与后端 API 通信的方法
  */
 
-import type { CodeExecutionRequest, CodeExecutionResponse } from '../types';
+import type { CodeExecutionRequest, CodeExecutionResponse, ExplainResponse } from '../types';
 
 /**
  * API 服务类
@@ -85,6 +85,31 @@ class ApiService {
       // 重新抛出其他错误
       throw error;
     }
+  }
+
+  /**
+   * 请求 AI 类比讲解
+   *
+   * 将知识卡片标题发送给后端，由 DeepSeek 生成针对宋庚实施工作场景的五段式类比讲解。
+   *
+   * @param topic - 知识卡片标题，作为讲解主题
+   * @returns Promise<ExplainResponse> - 包含讲解内容和 token 消耗的响应
+   * @throws Error - HTTP 响应非 2xx 时抛出带状态码的错误
+   */
+  async explainConcept(topic: string): Promise<ExplainResponse> {
+    const response = await fetch(`${this.baseURL}/api/ai/explain`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ topic }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`请求失败: ${response.status}`);
+    }
+
+    return response.json() as Promise<ExplainResponse>;
   }
 }
 
