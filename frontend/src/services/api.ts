@@ -32,7 +32,7 @@ class ApiService {
    * 构造函数
    * @param baseURL - 后端 API 的基础 URL，默认为 http://localhost:8000
    */
-  constructor(baseURL: string = 'http://localhost:8000') {
+  constructor(baseURL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') {
     this.baseURL = baseURL;
   }
 
