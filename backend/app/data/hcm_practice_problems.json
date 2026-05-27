@@ -55,7 +55,7 @@
         {"emp_id": "E006", "emp_name": "刘洋", "dept_name": "信息技术部", "entry_date": "2023-09-12", "status": "active"},
         {"emp_id": "E007", "emp_name": "周梅", "dept_name": "人力资源部", "entry_date": "2024-01-08", "status": "active"}
       ],
-      "expected_output": "HR 要求：统计各部门当前在职（status='active'）员工人数，返回部门名称和人数，不限排序。",
+      "expected_output": "HR 要求：统计各部门当前在职（status='active'）员工人数。\n返回两列：dept_name（部门名称）和 headcount（人数）。不限排序。",
       "result_ordered": false,
       "expected_rows": [
         {"dept_name": "人力资源部", "headcount": 3},

@@ -44,10 +44,12 @@
 - 安全性：用 `threading.Timer` 实现 3 秒超时，超时后 cancel 连接，不依赖关键字黑名单
 - 优先：确定性判分，不消耗 AI token，无幻觉风险
 
-**Python 题**：DeepSeek AI 判分
-- 用户提交代码片段 + 对预期输出的文字描述
-- 复用阶段 2 的 `bug_hunt_service` 调用模式（三层 JSON 兜底、相同人设前缀）
-- 不做 Python 沙箱：subprocess 有命令注入风险，docker 部署太重，AI 判代码逻辑足够
+**Python 题**：DeepSeek AI 判分（修复代码形式）
+- 题目预填一段有问题的 Python/pandas 代码（显示在 CodeMirror 编辑器中）
+- 用户直接在编辑器里修改代码以修复 bug，同时填写说明（解释改了什么以及为什么）
+- AI 根据修改后的代码 + 说明 + 题库中的 `bug_essence` 参考判分
+- 不做 Python 沙箱执行（subprocess 有命令注入风险，docker 太重；AI 判代码逻辑足够）
+- 复用阶段 2 的 DeepSeek 调用模式（三层 JSON 兜底、相同宋庚人设前缀）
 
 **理由**：SQL 结果可精确对比，无需 AI；Python 逻辑灵活，AI 判分更自然。两者混合让判分质量最优、token 消耗最小。
 
