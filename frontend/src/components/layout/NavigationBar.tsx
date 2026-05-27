@@ -49,7 +49,7 @@ const NAV_TABS: NavTab[] = [
     id: 'practice',
     label: 'HCM 实战',
     icon: Database,
-    path: '/practice',
+    path: '/hcm-practice',
   },
 ];
 
