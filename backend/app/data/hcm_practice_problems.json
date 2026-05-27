@@ -4,28 +4,91 @@
       "id": "hp_001",
       "title": "查出本月新入职员工名单",
       "language": "sql",
-      "tags": ["date", "filter", "HCM入职"],
+      "tags": [
+        "date",
+        "filter",
+        "HCM入职"
+      ],
       "scenario": "你在某客户现场做 HCM 系统上线验收，HR 负责人要求你从员工表中查出本月（2024 年 3 月）新入职的所有员工工号和姓名。",
       "schema": [
-        {"column": "emp_id",     "type": "TEXT",         "comment": "员工工号，主键"},
-        {"column": "emp_name",   "type": "TEXT",         "comment": "员工姓名"},
-        {"column": "dept_name",  "type": "TEXT",         "comment": "部门名称"},
-        {"column": "entry_date", "type": "TEXT",         "comment": "入职日期，格式 YYYY-MM-DD"},
-        {"column": "status",     "type": "TEXT",         "comment": "在职状态，active / resigned"}
+        {
+          "column": "emp_id",
+          "type": "TEXT",
+          "comment": "员工工号，主键"
+        },
+        {
+          "column": "emp_name",
+          "type": "TEXT",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "dept_name",
+          "type": "TEXT",
+          "comment": "部门名称"
+        },
+        {
+          "column": "entry_date",
+          "type": "TEXT",
+          "comment": "入职日期，格式 YYYY-MM-DD"
+        },
+        {
+          "column": "status",
+          "type": "TEXT",
+          "comment": "在职状态，active / resigned"
+        }
       ],
       "sample_data": [
-        {"emp_id": "E001", "emp_name": "张伟", "dept_name": "人力资源部", "entry_date": "2024-03-05", "status": "active"},
-        {"emp_id": "E002", "emp_name": "李娜", "dept_name": "财务部",     "entry_date": "2023-11-20", "status": "active"},
-        {"emp_id": "E003", "emp_name": "王芳", "dept_name": "信息技术部", "entry_date": "2024-03-18", "status": "active"},
-        {"emp_id": "E004", "emp_name": "赵磊", "dept_name": "人力资源部", "entry_date": "2024-02-28", "status": "active"},
-        {"emp_id": "E005", "emp_name": "陈静", "dept_name": "财务部",     "entry_date": "2024-03-01", "status": "resigned"}
+        {
+          "emp_id": "E001",
+          "emp_name": "张伟",
+          "dept_name": "人力资源部",
+          "entry_date": "2024-03-05",
+          "status": "active"
+        },
+        {
+          "emp_id": "E002",
+          "emp_name": "李娜",
+          "dept_name": "财务部",
+          "entry_date": "2023-11-20",
+          "status": "active"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳",
+          "dept_name": "信息技术部",
+          "entry_date": "2024-03-18",
+          "status": "active"
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": "赵磊",
+          "dept_name": "人力资源部",
+          "entry_date": "2024-02-28",
+          "status": "active"
+        },
+        {
+          "emp_id": "E005",
+          "emp_name": "陈静",
+          "dept_name": "财务部",
+          "entry_date": "2024-03-01",
+          "status": "resigned"
+        }
       ],
       "expected_output": "HR 要求：列出 2024 年 3 月新入职的员工工号和姓名，按入职日期升序，用于核对纸质入职档案。",
       "result_ordered": true,
       "expected_rows": [
-        {"emp_id": "E005", "emp_name": "陈静"},
-        {"emp_id": "E001", "emp_name": "张伟"},
-        {"emp_id": "E003", "emp_name": "王芳"}
+        {
+          "emp_id": "E005",
+          "emp_name": "陈静"
+        },
+        {
+          "emp_id": "E001",
+          "emp_name": "张伟"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳"
+        }
       ],
       "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, dept_name TEXT, entry_date TEXT, status TEXT);\nINSERT INTO employees VALUES ('E001', '张伟', '人力资源部', '2024-03-05', 'active');\nINSERT INTO employees VALUES ('E002', '李娜', '财务部', '2023-11-20', 'active');\nINSERT INTO employees VALUES ('E003', '王芳', '信息技术部', '2024-03-18', 'active');\nINSERT INTO employees VALUES ('E004', '赵磊', '人力资源部', '2024-02-28', 'active');\nINSERT INTO employees VALUES ('E005', '陈静', '财务部', '2024-03-01', 'resigned');",
       "code": null,
@@ -37,30 +100,105 @@
       "id": "hp_002",
       "title": "统计各部门在职人数",
       "language": "sql",
-      "tags": ["aggregate", "GROUP BY", "HCM组织架构"],
+      "tags": [
+        "aggregate",
+        "GROUP BY",
+        "HCM组织架构"
+      ],
       "scenario": "系统上线前，HR 主管要核查各部门人员编制是否与纸质花名册一致。请统计每个部门当前在职员工数量，结果不限排序。",
       "schema": [
-        {"column": "emp_id",     "type": "TEXT", "comment": "员工工号，主键"},
-        {"column": "emp_name",   "type": "TEXT", "comment": "员工姓名"},
-        {"column": "dept_name",  "type": "TEXT", "comment": "部门名称"},
-        {"column": "entry_date", "type": "TEXT", "comment": "入职日期，格式 YYYY-MM-DD"},
-        {"column": "status",     "type": "TEXT", "comment": "在职状态，active / resigned"}
+        {
+          "column": "emp_id",
+          "type": "TEXT",
+          "comment": "员工工号，主键"
+        },
+        {
+          "column": "emp_name",
+          "type": "TEXT",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "dept_name",
+          "type": "TEXT",
+          "comment": "部门名称"
+        },
+        {
+          "column": "entry_date",
+          "type": "TEXT",
+          "comment": "入职日期，格式 YYYY-MM-DD"
+        },
+        {
+          "column": "status",
+          "type": "TEXT",
+          "comment": "在职状态，active / resigned"
+        }
       ],
       "sample_data": [
-        {"emp_id": "E001", "emp_name": "张伟", "dept_name": "人力资源部", "entry_date": "2023-05-10", "status": "active"},
-        {"emp_id": "E002", "emp_name": "李娜", "dept_name": "财务部",     "entry_date": "2022-08-15", "status": "active"},
-        {"emp_id": "E003", "emp_name": "王芳", "dept_name": "信息技术部", "entry_date": "2023-03-20", "status": "active"},
-        {"emp_id": "E004", "emp_name": "赵磊", "dept_name": "人力资源部", "entry_date": "2021-11-01", "status": "active"},
-        {"emp_id": "E005", "emp_name": "陈静", "dept_name": "财务部",     "entry_date": "2020-06-30", "status": "resigned"},
-        {"emp_id": "E006", "emp_name": "刘洋", "dept_name": "信息技术部", "entry_date": "2023-09-12", "status": "active"},
-        {"emp_id": "E007", "emp_name": "周梅", "dept_name": "人力资源部", "entry_date": "2024-01-08", "status": "active"}
+        {
+          "emp_id": "E001",
+          "emp_name": "张伟",
+          "dept_name": "人力资源部",
+          "entry_date": "2023-05-10",
+          "status": "active"
+        },
+        {
+          "emp_id": "E002",
+          "emp_name": "李娜",
+          "dept_name": "财务部",
+          "entry_date": "2022-08-15",
+          "status": "active"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳",
+          "dept_name": "信息技术部",
+          "entry_date": "2023-03-20",
+          "status": "active"
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": "赵磊",
+          "dept_name": "人力资源部",
+          "entry_date": "2021-11-01",
+          "status": "active"
+        },
+        {
+          "emp_id": "E005",
+          "emp_name": "陈静",
+          "dept_name": "财务部",
+          "entry_date": "2020-06-30",
+          "status": "resigned"
+        },
+        {
+          "emp_id": "E006",
+          "emp_name": "刘洋",
+          "dept_name": "信息技术部",
+          "entry_date": "2023-09-12",
+          "status": "active"
+        },
+        {
+          "emp_id": "E007",
+          "emp_name": "周梅",
+          "dept_name": "人力资源部",
+          "entry_date": "2024-01-08",
+          "status": "active"
+        }
       ],
       "expected_output": "HR 要求：统计各部门当前在职（status='active'）员工人数。\n返回两列：dept_name（部门名称）和 headcount（人数）。不限排序。",
       "result_ordered": false,
       "expected_rows": [
-        {"dept_name": "人力资源部", "headcount": 3},
-        {"dept_name": "财务部",     "headcount": 1},
-        {"dept_name": "信息技术部", "headcount": 2}
+        {
+          "dept_name": "人力资源部",
+          "headcount": 3
+        },
+        {
+          "dept_name": "财务部",
+          "headcount": 1
+        },
+        {
+          "dept_name": "信息技术部",
+          "headcount": 2
+        }
       ],
       "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, dept_name TEXT, entry_date TEXT, status TEXT);\nINSERT INTO employees VALUES ('E001', '张伟', '人力资源部', '2023-05-10', 'active');\nINSERT INTO employees VALUES ('E002', '李娜', '财务部', '2022-08-15', 'active');\nINSERT INTO employees VALUES ('E003', '王芳', '信息技术部', '2023-03-20', 'active');\nINSERT INTO employees VALUES ('E004', '赵磊', '人力资源部', '2021-11-01', 'active');\nINSERT INTO employees VALUES ('E005', '陈静', '财务部', '2020-06-30', 'resigned');\nINSERT INTO employees VALUES ('E006', '刘洋', '信息技术部', '2023-09-12', 'active');\nINSERT INTO employees VALUES ('E007', '周梅', '人力资源部', '2024-01-08', 'active');",
       "code": null,
@@ -72,27 +210,612 @@
       "id": "hp_003",
       "title": "修复员工薪资缺失检测脚本",
       "language": "python",
-      "tags": ["pandas", "NaN", "数据清洗", "HCM薪资"],
+      "tags": [
+        "pandas",
+        "NaN",
+        "数据清洗",
+        "HCM薪资"
+      ],
       "scenario": "你在做 HCM 系统数据迁移，需要从旧系统导出的员工薪资表中找出薪资未录入的员工并标记。同事写了一段脚本，但运行后发现没有任何员工被标记——帮他找出并修复代码中的问题。",
       "schema": [
-        {"column": "emp_id",         "type": "str",        "comment": "员工工号"},
-        {"column": "emp_name",       "type": "str",        "comment": "员工姓名"},
-        {"column": "monthly_salary", "type": "float / NaN","comment": "月薪，未录入时为 NaN"}
+        {
+          "column": "emp_id",
+          "type": "str",
+          "comment": "员工工号"
+        },
+        {
+          "column": "emp_name",
+          "type": "str",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "monthly_salary",
+          "type": "float / NaN",
+          "comment": "月薪，未录入时为 NaN"
+        }
       ],
       "sample_data": [
-        {"emp_id": "E001", "emp_name": "张伟", "monthly_salary": 8000},
-        {"emp_id": "E002", "emp_name": "李娜", "monthly_salary": null},
-        {"emp_id": "E003", "emp_name": "王芳", "monthly_salary": 6500},
-        {"emp_id": "E004", "emp_name": "赵磊", "monthly_salary": null}
+        {
+          "emp_id": "E001",
+          "emp_name": "张伟",
+          "monthly_salary": 8000
+        },
+        {
+          "emp_id": "E002",
+          "emp_name": "李娜",
+          "monthly_salary": null
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳",
+          "monthly_salary": 6500
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": "赵磊",
+          "monthly_salary": null
+        }
       ],
       "expected_output": "找出 monthly_salary 为 NaN 的员工（E002 李娜、E004 赵磊），在 flag 列标记为'薪资待录入'，打印这两名员工的工号和姓名。",
       "result_ordered": null,
       "expected_rows": null,
       "setup_sql": null,
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'emp_id':         ['E001', 'E002', 'E003', 'E004'],\n    'emp_name':       ['张伟',  '李娜',  '王芳',  '赵磊'],\n    'monthly_salary': [8000,   None,   6500,   None]\n})\n\n# 找出薪资缺失的员工，标记为'薪资待录入'\nmissing_mask = df['monthly_salary'] == None   # 第10行\ndf['flag'] = ''\ndf[missing_mask]['flag'] = '薪资待录入'        # 第12行\n\nprint(df[df['flag'] == '薪资待录入'][['emp_id', 'emp_name']])",
-      "expected_bug_lines": [10, 12],
+      "expected_bug_lines": [
+        10,
+        12
+      ],
       "bug_essence": "第10行用 == None 比较 NaN，NaN 和任何值（包括自身）比较都返回 False，正确方法是 pd.isna()；第12行对切片结果链式赋值，pandas 会在 copy 上修改而非原始 df，应使用 df.loc[missing_mask, 'flag'] 原地赋值",
       "answer": "第10行问题：df['monthly_salary'] == None 永远返回全 False。NaN（Not a Number）在 Python/pandas 中不等于任何值，包括自身（NaN == NaN 也是 False）。检测缺失值必须用 pd.isna() 或 df['monthly_salary'].isna()。\n\n第12行问题：df[missing_mask]['flag'] = '薪资待录入' 是链式赋值。df[missing_mask] 返回的是原始 df 的副本（copy），对副本赋值不会改变原始 df，还会触发 SettingWithCopyWarning。应改用 df.loc[missing_mask, 'flag'] = '薪资待录入'。\n\n修复后正确写法：\nmissing_mask = pd.isna(df['monthly_salary'])\ndf['flag'] = ''\ndf.loc[missing_mask, 'flag'] = '薪资待录入'\nprint(df[df['flag'] == '薪资待录入'][['emp_id', 'emp_name']])\n\n实施场景注意：HCM 系统导出的薪资表，未录入薪资的字段是 NaN，不是空字符串也不是字符串 'None'。用 == '' 或 == None 都查不出来，必须用 pd.isna()。这是 pandas 新手最容易踩的坑之一。"
+    },
+    {
+      "id": "hp_004",
+      "title": "查出每个员工所在部门的部门主管",
+      "language": "sql",
+      "tags": [
+        "JOIN",
+        "INNER JOIN",
+        "HCM组织架构"
+      ],
+      "scenario": "HCM 系统上线第一周，HR 主管想验收一份「员工 — 部门 — 部门主管」对照表，用于核对各部门的汇报关系是否配置正确。员工表只存了部门 ID，部门信息（含主管姓名）在另一张表里，需要把两张表关联起来。",
+      "schema": [
+        {
+          "column": "employees.emp_id",
+          "type": "TEXT",
+          "comment": "员工工号，主键"
+        },
+        {
+          "column": "employees.emp_name",
+          "type": "TEXT",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "employees.dept_id",
+          "type": "TEXT",
+          "comment": "所属部门 ID，外键关联 departments.dept_id"
+        },
+        {
+          "column": "departments.dept_id",
+          "type": "TEXT",
+          "comment": "部门 ID，主键"
+        },
+        {
+          "column": "departments.dept_name",
+          "type": "TEXT",
+          "comment": "部门名称"
+        },
+        {
+          "column": "departments.manager_name",
+          "type": "TEXT",
+          "comment": "部门主管姓名"
+        }
+      ],
+      "sample_data": [
+        {
+          "table": "employees",
+          "emp_id": "E001",
+          "emp_name": "张伟",
+          "dept_id": "D01"
+        },
+        {
+          "table": "employees",
+          "emp_id": "E002",
+          "emp_name": "李娜",
+          "dept_id": "D02"
+        },
+        {
+          "table": "employees",
+          "emp_id": "E003",
+          "emp_name": "王芳",
+          "dept_id": "D01"
+        },
+        {
+          "table": "employees",
+          "emp_id": "E004",
+          "emp_name": "赵磊",
+          "dept_id": "D03"
+        },
+        {
+          "table": "employees",
+          "emp_id": "E005",
+          "emp_name": "陈静",
+          "dept_id": null
+        },
+        {
+          "table": "departments",
+          "dept_id": "D01",
+          "dept_name": "人力资源部",
+          "manager_name": "刘建国"
+        },
+        {
+          "table": "departments",
+          "dept_id": "D02",
+          "dept_name": "财务部",
+          "manager_name": "王秀英"
+        },
+        {
+          "table": "departments",
+          "dept_id": "D03",
+          "dept_name": "信息技术部",
+          "manager_name": "赵海涛"
+        }
+      ],
+      "expected_output": "HR 要求：列出所有已分配部门的员工，返回三列：emp_name（员工姓名）、dept_name（部门名称）、manager_name（部门主管）。不限排序。未分配部门的员工（dept_id 为 NULL）不需要返回。",
+      "result_ordered": false,
+      "expected_rows": [
+        {
+          "emp_name": "张伟",
+          "dept_name": "人力资源部",
+          "manager_name": "刘建国"
+        },
+        {
+          "emp_name": "李娜",
+          "dept_name": "财务部",
+          "manager_name": "王秀英"
+        },
+        {
+          "emp_name": "王芳",
+          "dept_name": "人力资源部",
+          "manager_name": "刘建国"
+        },
+        {
+          "emp_name": "赵磊",
+          "dept_name": "信息技术部",
+          "manager_name": "赵海涛"
+        }
+      ],
+      "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, dept_id TEXT); CREATE TABLE departments (dept_id TEXT PRIMARY KEY, dept_name TEXT, manager_name TEXT); INSERT INTO employees VALUES ('E001', '张伟', 'D01'); INSERT INTO employees VALUES ('E002', '李娜', 'D02'); INSERT INTO employees VALUES ('E003', '王芳', 'D01'); INSERT INTO employees VALUES ('E004', '赵磊', 'D03'); INSERT INTO employees VALUES ('E005', '陈静', NULL); INSERT INTO departments VALUES ('D01', '人力资源部', '刘建国'); INSERT INTO departments VALUES ('D02', '财务部', '王秀英'); INSERT INTO departments VALUES ('D03', '信息技术部', '赵海涛');",
+      "code": null,
+      "expected_bug_lines": null,
+      "bug_essence": null,
+      "answer": "核心是两表 INNER JOIN，关联条件是 employees.dept_id = departments.dept_id：\n\nSELECT e.emp_name, d.dept_name, d.manager_name\nFROM employees e\nINNER JOIN departments d ON e.dept_id = d.dept_id\n\nINNER JOIN 会自动过滤掉 employees 中 dept_id 为 NULL 的行（E005 陈静），因为 NULL = 任何值都返回 NULL（不是 true 也不是 false），不满足 ON 条件。这正好符合题目要求。\n\n常见误区 1：用 LEFT JOIN 会把 E005 也带出来（manager_name 为 NULL），与题目要求不符。INNER JOIN 还是 LEFT JOIN，取决于业务上是否要保留「无部门员工」——这是 HCM 报表里非常常见的歧义点。\n\n常见误区 2：忘写表别名，所有字段加全限定名（employees.emp_name, departments.dept_name）写得很长。SQL 别名（e, d）是工程习惯，可读性更好。\n\n实施场景注意：浪潮 HCM 实施中，员工和部门是分两张表存的（员工表只存 dept_id），所有「员工 + 组织」相关的报表本质都是 JOIN。新员工入职但 dept_id 还没填（NULL）的情况非常常见，做报表时一定要和 HR 确认：「未分配部门的员工要不要出现在报表里？」答案不同，JOIN 类型就不同。"
+    },
+    {
+      "id": "hp_005",
+      "title": "查出某主管的所有直接下属",
+      "language": "sql",
+      "tags": [
+        "子查询",
+        "EXISTS",
+        "HCM组织架构"
+      ],
+      "scenario": "HCM 系统支持上下级汇报关系配置。CEO 王总（emp_id = E001）要求出一份「我的直接下属名单」，用于本周一对一面谈安排。要求只列出直接汇报给王总的员工，不包括下属的下属。",
+      "schema": [
+        {
+          "column": "emp_id",
+          "type": "TEXT",
+          "comment": "员工工号，主键"
+        },
+        {
+          "column": "emp_name",
+          "type": "TEXT",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "title",
+          "type": "TEXT",
+          "comment": "职位"
+        },
+        {
+          "column": "manager_id",
+          "type": "TEXT",
+          "comment": "直属上级工号，关联 emp_id；CEO 的此字段为 NULL"
+        }
+      ],
+      "sample_data": [
+        {
+          "emp_id": "E001",
+          "emp_name": "王总",
+          "title": "CEO",
+          "manager_id": null
+        },
+        {
+          "emp_id": "E002",
+          "emp_name": "李总监",
+          "title": "技术总监",
+          "manager_id": "E001"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "张总监",
+          "title": "财务总监",
+          "manager_id": "E001"
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": "刘经理",
+          "title": "研发经理",
+          "manager_id": "E002"
+        },
+        {
+          "emp_id": "E005",
+          "emp_name": "陈经理",
+          "title": "测试经理",
+          "manager_id": "E002"
+        },
+        {
+          "emp_id": "E006",
+          "emp_name": "周专员",
+          "title": "财务专员",
+          "manager_id": "E003"
+        },
+        {
+          "emp_id": "E007",
+          "emp_name": "吴工",
+          "title": "高级工程师",
+          "manager_id": "E004"
+        }
+      ],
+      "expected_output": "HR 要求：查出 E001 王总的所有直接下属（不含下属的下属），返回两列：emp_name（员工姓名）和 title（职位）。不限排序。",
+      "result_ordered": false,
+      "expected_rows": [
+        {
+          "emp_name": "李总监",
+          "title": "技术总监"
+        },
+        {
+          "emp_name": "张总监",
+          "title": "财务总监"
+        }
+      ],
+      "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, title TEXT, manager_id TEXT); INSERT INTO employees VALUES ('E001', '王总', 'CEO', NULL); INSERT INTO employees VALUES ('E002', '李总监', '技术总监', 'E001'); INSERT INTO employees VALUES ('E003', '张总监', '财务总监', 'E001'); INSERT INTO employees VALUES ('E004', '刘经理', '研发经理', 'E002'); INSERT INTO employees VALUES ('E005', '陈经理', '测试经理', 'E002'); INSERT INTO employees VALUES ('E006', '周专员', '财务专员', 'E003'); INSERT INTO employees VALUES ('E007', '吴工', '高级工程师', 'E004');",
+      "code": null,
+      "expected_bug_lines": null,
+      "bug_essence": null,
+      "answer": "这是「员工自关联」场景，同一张表里 manager_id 指向另一行的 emp_id。\n\n写法 1：直接 WHERE 过滤（最简洁）\nSELECT emp_name, title\nFROM employees\nWHERE manager_id = 'E001'\n\n写法 2：子查询验证「上级是王总」\nSELECT emp_name, title\nFROM employees\nWHERE manager_id IN (SELECT emp_id FROM employees WHERE emp_name = '王总')\n\n写法 3：自连接 + EXISTS\nSELECT e.emp_name, e.title\nFROM employees e\nWHERE EXISTS (\n  SELECT 1 FROM employees m\n  WHERE m.emp_id = e.manager_id AND m.emp_name = '王总'\n)\n\n三种写法的取舍：\n- 写法 1 已知 emp_id 时最直接，是日常工作首选。\n- 写法 2 只知道姓名不知道 emp_id 时用，但「王总」可能重名，更稳的是用工号定位。\n- 写法 3 EXISTS 适合「判断关联是否存在」的语义，在更复杂的多条件场景（如「上级是王总且部门是 X」）下更易扩展。\n\n常见误区：写成「WHERE manager_id = E001」漏了引号——E001 是字符串字面量不是字段名，会报「no such column: E001」。\n\n实施场景注意：HCM 系统的「我的下属」「我的下属的下属」（隔级管理）报表非常常见。本题只查「直接下属」，如果要查「所有下属（递归）」需要用 SQL 递归 CTE（WITH RECURSIVE），那是更高阶题目，浪潮 HCM 部分场景会用到。"
+    },
+    {
+      "id": "hp_006",
+      "title": "按司龄给员工分级",
+      "language": "sql",
+      "tags": [
+        "CASE WHEN",
+        "条件分支",
+        "HCM司龄"
+      ],
+      "scenario": "年度调薪在即，HR 部门要按司龄给员工分档：不满 1 年算「新员工」，1 到 3 年算「骨干」，3 到 5 年算「资深」，5 年以上算「元老」。HR 给你一张员工入职日期表，要求生成一份分级名单作为调薪基础数据。当前日期按 2026-05-27 计算。",
+      "schema": [
+        {
+          "column": "emp_id",
+          "type": "TEXT",
+          "comment": "员工工号，主键"
+        },
+        {
+          "column": "emp_name",
+          "type": "TEXT",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "entry_date",
+          "type": "TEXT",
+          "comment": "入职日期，格式 YYYY-MM-DD"
+        }
+      ],
+      "sample_data": [
+        {
+          "emp_id": "E001",
+          "emp_name": "张伟",
+          "entry_date": "2025-08-15"
+        },
+        {
+          "emp_id": "E002",
+          "emp_name": "李娜",
+          "entry_date": "2024-03-10"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳",
+          "entry_date": "2022-11-20"
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": "赵磊",
+          "entry_date": "2021-05-01"
+        },
+        {
+          "emp_id": "E005",
+          "emp_name": "陈静",
+          "entry_date": "2018-09-12"
+        },
+        {
+          "emp_id": "E006",
+          "emp_name": "周梅",
+          "entry_date": "2026-01-08"
+        }
+      ],
+      "expected_output": "HR 要求：以 2026-05-27 为基准日，按司龄给每个员工分级。返回三列：emp_name（姓名）、years_of_service（司龄年数，整数）、level（分级文本）。分级规则：< 1 年 → '新员工'，1 ≤ x < 3 年 → '骨干'，3 ≤ x < 5 年 → '资深'，≥ 5 年 → '元老'。不限排序。",
+      "result_ordered": false,
+      "expected_rows": [
+        {
+          "emp_name": "张伟",
+          "years_of_service": 0,
+          "level": "新员工"
+        },
+        {
+          "emp_name": "李娜",
+          "years_of_service": 2,
+          "level": "骨干"
+        },
+        {
+          "emp_name": "王芳",
+          "years_of_service": 3,
+          "level": "资深"
+        },
+        {
+          "emp_name": "赵磊",
+          "years_of_service": 5,
+          "level": "元老"
+        },
+        {
+          "emp_name": "陈静",
+          "years_of_service": 7,
+          "level": "元老"
+        },
+        {
+          "emp_name": "周梅",
+          "years_of_service": 0,
+          "level": "新员工"
+        }
+      ],
+      "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, entry_date TEXT); INSERT INTO employees VALUES ('E001', '张伟', '2025-08-15'); INSERT INTO employees VALUES ('E002', '李娜', '2024-03-10'); INSERT INTO employees VALUES ('E003', '王芳', '2022-11-20'); INSERT INTO employees VALUES ('E004', '赵磊', '2021-05-01'); INSERT INTO employees VALUES ('E005', '陈静', '2018-09-12'); INSERT INTO employees VALUES ('E006', '周梅', '2026-01-08');",
+      "code": null,
+      "expected_bug_lines": null,
+      "bug_essence": null,
+      "answer": "核心是 CASE WHEN 多分支判断 + 日期差计算：\n\nSELECT\n  emp_name,\n  CAST((julianday('2026-05-27') - julianday(entry_date)) / 365.25 AS INTEGER) AS years_of_service,\n  CASE\n    WHEN (julianday('2026-05-27') - julianday(entry_date)) / 365.25 < 1 THEN '新员工'\n    WHEN (julianday('2026-05-27') - julianday(entry_date)) / 365.25 < 3 THEN '骨干'\n    WHEN (julianday('2026-05-27') - julianday(entry_date)) / 365.25 < 5 THEN '资深'\n    ELSE '元老'\n  END AS level\nFROM employees\n\n关键知识点：\n\n1. CASE WHEN 的「分支顺序」很重要。SQL 从上到下匹配第一个为真的条件，所以小区间必须写在前面。如果把「< 5」写在「< 3」之前，所有 3 年以下的员工也会被判为「资深」——这是新手常犯的逻辑错误。\n\n2. 日期差计算：SQLite 用 julianday() 把日期转成天数，相减得到天数差，再除以 365.25（含闰年）得到年数。其他数据库语法不同（MySQL 用 TIMESTAMPDIFF，Oracle 用 MONTHS_BETWEEN / 12）。\n\n3. CAST AS INTEGER 截断小数取整数年。这正好符合「司龄」的业务语义——5.8 年是「5 年司龄」，不是「6 年」。\n\n常见误区：用 strftime('%Y', '2026-05-27') - strftime('%Y', entry_date) 直接相减——这只算年份差，不考虑月日。比如 2025-12-31 入职的员工到 2026-01-01，会被算成「司龄 1 年」，实际只入职 1 天。\n\n实施场景注意：浪潮 HCM 的「司龄报表」「司龄工资」「年休假天数计算」都依赖这个逻辑。HR 业务对司龄的定义可能不统一——有的算「自然年差」（看月日是否到），有的算「整年差」（只看年份），上线前必须和 HR 主管对齐口径，写成数据字典。这是实施顾问最容易翻车的地方之一。"
+    },
+    {
+      "id": "hp_007",
+      "title": "清洗员工姓名前后空格",
+      "language": "sql",
+      "tags": [
+        "字符串处理",
+        "TRIM",
+        "LIKE",
+        "HCM数据清洗"
+      ],
+      "scenario": "你在做 HCM 系统数据迁移，从旧 Excel 导入员工花名册后，HR 反馈「按姓名搜索员工总是搜不到」。你抽查数据发现，部分姓名字段前后混入了空格——这是 Excel 复制粘贴时常见的问题。HR 要求你查出所有姓名前后带空格的员工，作为脏数据清洗的依据。",
+      "schema": [
+        {
+          "column": "emp_id",
+          "type": "TEXT",
+          "comment": "员工工号，主键"
+        },
+        {
+          "column": "emp_name",
+          "type": "TEXT",
+          "comment": "员工姓名，存在前后空格脏数据"
+        },
+        {
+          "column": "phone",
+          "type": "TEXT",
+          "comment": "联系电话"
+        }
+      ],
+      "sample_data": [
+        {
+          "emp_id": "E001",
+          "emp_name": "张伟",
+          "phone": "13800138001"
+        },
+        {
+          "emp_id": "E002",
+          "emp_name": " 李娜",
+          "phone": "13800138002"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳 ",
+          "phone": "13800138003"
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": " 赵磊 ",
+          "phone": "13800138004"
+        },
+        {
+          "emp_id": "E005",
+          "emp_name": "陈静",
+          "phone": "13800138005"
+        }
+      ],
+      "expected_output": "HR 要求：查出所有 emp_name 前后带空格的员工，返回两列：emp_id 和清洗后的 emp_name（去除前后空格后的姓名）。不限排序。",
+      "result_ordered": false,
+      "expected_rows": [
+        {
+          "emp_id": "E002",
+          "emp_name": "李娜"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳"
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": "赵磊"
+        }
+      ],
+      "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, phone TEXT); INSERT INTO employees VALUES ('E001', '张伟', '13800138001'); INSERT INTO employees VALUES ('E002', ' 李娜', '13800138002'); INSERT INTO employees VALUES ('E003', '王芳 ', '13800138003'); INSERT INTO employees VALUES ('E004', ' 赵磊 ', '13800138004'); INSERT INTO employees VALUES ('E005', '陈静', '13800138005');",
+      "code": null,
+      "expected_bug_lines": null,
+      "bug_essence": null,
+      "answer": "核心是两件事：(1) 识别出有空格的行；(2) 用 TRIM 清洗后输出。\n\nSELECT emp_id, TRIM(emp_name) AS emp_name\nFROM employees\nWHERE emp_name != TRIM(emp_name)\n\n关键知识点：\n\n1. TRIM() 函数：去除字符串前后空格（LTRIM 只去左边，RTRIM 只去右边）。SQLite / MySQL / Oracle 都支持 TRIM。\n\n2. WHERE 条件「emp_name != TRIM(emp_name)」：如果原字段和 TRIM 后的字段不一样，说明前后有空格。这比用 LIKE ' %' OR LIKE '% ' 更简洁可靠。\n\n3. 输出时用 AS emp_name 给 TRIM 结果起别名，否则列名会是「TRIM(emp_name)」，下游程序消费报表时字段名对不上。\n\n等价写法：\nSELECT emp_id, TRIM(emp_name) AS emp_name\nFROM employees\nWHERE emp_name LIKE ' %' OR emp_name LIKE '% '\n\n常见误区 1：直接用 emp_name = '李娜' 搜索。如果数据里是「 李娜」（前面带空格），= 比较是严格相等，永远查不到。这就是 HR 反馈「搜不到员工」的根本原因。\n\n常见误区 2：以为「肉眼看不见的空格 = 没有空格」。Excel 复制时除了普通空格（U+0020），还可能混入不间断空格（U+00A0，nbsp）、零宽字符等。标准 TRIM 只处理普通空格，对 nbsp 无效——这种情况需要先用 REPLACE(emp_name, CHAR(160), '') 替换掉 nbsp 再 TRIM。\n\n实施场景注意：浪潮 HCM 实施时，从客户 Excel 导入员工档案是高频任务。导入前必做的「数据清洗 checklist」包括：(1) TRIM 所有文本字段；(2) 检查不可见字符（nbsp、tab、换行符）；(3) 统一全角半角；(4) 统一日期格式。这套清洗规则建议固化到导入脚本里，不要靠 HR 手工修。"
+    },
+    {
+      "id": "hp_008",
+      "title": "计算员工法定退休日期",
+      "language": "sql",
+      "tags": [
+        "日期函数",
+        "DATE",
+        "CASE WHEN",
+        "HCM社保"
+      ],
+      "scenario": "人力资源部要做一份「未来 3 年退休员工预警表」，提前规划岗位接替。法定退休年龄按现行规定：男性 60 岁、女性 55 岁（不考虑近年延迟退休政策）。已知员工的出生日期和性别，需要计算每个人的法定退休日期，并标记是否在 2026-05-27 到 2029-05-27 这 3 年内退休。",
+      "schema": [
+        {
+          "column": "emp_id",
+          "type": "TEXT",
+          "comment": "员工工号，主键"
+        },
+        {
+          "column": "emp_name",
+          "type": "TEXT",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "gender",
+          "type": "TEXT",
+          "comment": "性别，'M' = 男，'F' = 女"
+        },
+        {
+          "column": "birth_date",
+          "type": "TEXT",
+          "comment": "出生日期，格式 YYYY-MM-DD"
+        }
+      ],
+      "sample_data": [
+        {
+          "emp_id": "E001",
+          "emp_name": "张伟",
+          "gender": "M",
+          "birth_date": "1965-08-15"
+        },
+        {
+          "emp_id": "E002",
+          "emp_name": "李娜",
+          "gender": "F",
+          "birth_date": "1972-03-10"
+        },
+        {
+          "emp_id": "E003",
+          "emp_name": "王芳",
+          "gender": "F",
+          "birth_date": "1971-11-20"
+        },
+        {
+          "emp_id": "E004",
+          "emp_name": "赵磊",
+          "gender": "M",
+          "birth_date": "1968-06-01"
+        },
+        {
+          "emp_id": "E005",
+          "emp_name": "陈静",
+          "gender": "F",
+          "birth_date": "1980-09-12"
+        },
+        {
+          "emp_id": "E006",
+          "emp_name": "周伟",
+          "gender": "M",
+          "birth_date": "1975-04-25"
+        }
+      ],
+      "expected_output": "HR 要求：列出所有在 2026-05-27 到 2029-05-27 之间到达法定退休日期的员工，返回三列：emp_name（姓名）、gender（性别）、retire_date（法定退休日期，格式 YYYY-MM-DD）。法定退休日期 = 出生日期 + 退休年龄（男 60，女 55）。不限排序。",
+      "result_ordered": false,
+      "expected_rows": [
+        {
+          "emp_name": "张伟",
+          "gender": "M",
+          "retire_date": "2025-08-15"
+        },
+        {
+          "emp_name": "李娜",
+          "gender": "F",
+          "retire_date": "2027-03-10"
+        },
+        {
+          "emp_name": "王芳",
+          "gender": "F",
+          "retire_date": "2026-11-20"
+        },
+        {
+          "emp_name": "赵磊",
+          "gender": "M",
+          "retire_date": "2028-06-01"
+        }
+      ],
+      "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, gender TEXT, birth_date TEXT); INSERT INTO employees VALUES ('E001', '张伟', 'M', '1965-08-15'); INSERT INTO employees VALUES ('E002', '李娜', 'F', '1972-03-10'); INSERT INTO employees VALUES ('E003', '王芳', 'F', '1971-11-20'); INSERT INTO employees VALUES ('E004', '赵磊', 'M', '1968-06-01'); INSERT INTO employees VALUES ('E005', '陈静', 'F', '1980-09-12'); INSERT INTO employees VALUES ('E006', '周伟', 'M', '1975-04-25');",
+      "code": null,
+      "expected_bug_lines": null,
+      "bug_essence": null,
+      "answer": "核心是用 DATE() 函数对日期做加法运算，配合 CASE WHEN 处理性别差异。\n\nSELECT\n  emp_name,\n  gender,\n  DATE(birth_date, CASE WHEN gender = 'M' THEN '+60 years' ELSE '+55 years' END) AS retire_date\nFROM employees\nWHERE DATE(birth_date, CASE WHEN gender = 'M' THEN '+60 years' ELSE '+55 years' END)\n  BETWEEN '2026-05-27' AND '2029-05-27'\n\n关键知识点：\n\n1. SQLite 的 DATE() 函数支持「修饰符」语法：DATE('1972-03-10', '+55 years') 返回 '2027-03-10'。这是 SQLite 特有的简洁写法。MySQL 用 DATE_ADD(birth_date, INTERVAL 55 YEAR)，Oracle 用 ADD_MONTHS(birth_date, 55*12)。\n\n2. WHERE 条件里重复了 CASE 表达式。可以用子查询或 CTE 避免重复：\nWITH retire AS (\n  SELECT emp_name, gender, DATE(birth_date, CASE WHEN gender = 'M' THEN '+60 years' ELSE '+55 years' END) AS retire_date\n  FROM employees\n)\nSELECT * FROM retire WHERE retire_date BETWEEN '2026-05-27' AND '2029-05-27'\n\n3. BETWEEN 是闭区间（含两端），刚好对应「3 年内」的业务语义。\n\n关于 E001 张伟（已超龄）：他出生于 1965-08-15，60 岁退休日期是 2025-08-15，已经过去了。但 HR 报表要求的是「2026-05-27 到 2029-05-27 之间退休」——已过期的不在范围内，会被 BETWEEN 自然过滤。正确结果不含张伟。\n\n常见误区 1：把退休年龄写死。如「WHERE strftime('%Y', 'now') - strftime('%Y', birth_date) >= 60」——丢失了性别差异，所有人按 60 算。\n\n常见误区 2：用年份相减代替完整日期加法。如 strftime('%Y', birth_date) + 60 算出来是数字 2025（年份），不是日期 2025-08-15，无法做精确日期比较。\n\n实施场景注意：浪潮 HCM 的「退休管理」「社保停缴预警」依赖这套逻辑。2025 年起国家开始执行「延迟退休方案」，男职工分批延到 63 岁、女职工分批延到 55-58 岁不等，规则与出生年月挂钩——实际项目中要按客户当地最新政策建一张「退休年龄对照表」，用 JOIN 取代硬编码的 60/55。本题为简化教学，仍用旧规则。"
+    },
+    {
+      "id": "hp_009",
+      "title": "修复 Excel 导入后工号格式错误",
+      "language": "python",
+      "tags": [
+        "pandas",
+        "dtype",
+        "Excel导入",
+        "HCM数据迁移"
+      ],
+      "scenario": "你在做 HCM 系统数据迁移，从客户提供的 Excel 表格读取员工档案。同事写了一段 pandas 脚本，但运行后发现工号字段全乱了：原本 Excel 里的「001」「002」变成了「1.0」「2.0」，导入 HCM 系统后所有工号匹配失败。帮他找出并修复代码中的问题。",
+      "schema": [
+        {
+          "column": "emp_id",
+          "type": "str (Excel 中为文本格式)",
+          "comment": "员工工号，原始格式 '001'~'010'（前导零必须保留）"
+        },
+        {
+          "column": "emp_name",
+          "type": "str",
+          "comment": "员工姓名"
+        },
+        {
+          "column": "monthly_salary",
+          "type": "float",
+          "comment": "月薪"
+        }
+      ],
+      "sample_data": [
+        {
+          "emp_id": "001",
+          "emp_name": "张伟",
+          "monthly_salary": 8000
+        },
+        {
+          "emp_id": "002",
+          "emp_name": "李娜",
+          "monthly_salary": 9500
+        },
+        {
+          "emp_id": "003",
+          "emp_name": "王芳",
+          "monthly_salary": 7200
+        }
+      ],
+      "expected_output": "读取后 df 中 emp_id 列应保持为字符串格式 '001'、'002'、'003'，而不是被识别为整数或浮点数。打印 df 时 emp_id 列应原样显示「001」而不是「1」或「1.0」。",
+      "result_ordered": null,
+      "expected_rows": null,
+      "setup_sql": null,
+      "code": "import pandas as pd\nfrom io import StringIO\n\n# 模拟从 Excel 读取（实际工作中是 pd.read_excel('员工档案.xlsx')）\ncsv_data = '''emp_id,emp_name,monthly_salary\n001,张伟,8000\n002,李娜,9500\n003,王芳,7200'''\n\ndf = pd.read_csv(StringIO(csv_data))   # 第 8 行\n\nprint('emp_id 列类型:', df['emp_id'].dtype)\nprint(df)\n\n# 期望输出 emp_id 列为 '001' '002' '003'\n# 实际输出 emp_id 列为 1 2 3（int 类型，前导零丢失）",
+      "expected_bug_lines": [
+        8
+      ],
+      "bug_essence": "pd.read_csv / pd.read_excel 默认会做类型推断，看到 '001'、'002' 这种纯数字字符串会自动转成 int 类型，导致前导零丢失。必须用 dtype 参数显式指定 emp_id 为字符串：pd.read_csv(..., dtype={'emp_id': str})。同理也可以用 dtype=str 让所有列保持字符串。",
+      "answer": "第 8 行问题：pd.read_csv 默认对每列做类型推断。emp_id 列的值「001」「002」是纯数字字符串，pandas 会自动转成 int（前导零变成无意义的 1、2、3），如果数据里混入小数还会变 float。\n\n修复方法：用 dtype 参数显式指定 emp_id 列保持字符串类型。\n\n修复后代码：\ndf = pd.read_csv(StringIO(csv_data), dtype={'emp_id': str})\n\n或者一次性把所有列读成字符串再按需转换：\ndf = pd.read_csv(StringIO(csv_data), dtype=str)\ndf['monthly_salary'] = df['monthly_salary'].astype(float)\n\n关于 pd.read_excel：完全一样的坑。Excel 文件本身的「单元格格式」（文本/数字）不一定能被 pandas 正确识别，最稳的做法仍然是 dtype={'emp_id': str}。\n\n常见误区 1：读完之后再转：df['emp_id'] = df['emp_id'].astype(str)。这做不到——此时 emp_id 已经是 int，再转 str 得到的是 '1' '2' '3'，前导零已经永久丢失，无法恢复。必须在读取那一步就指定 dtype。\n\n常见误区 2：在 Excel 里把列改成「文本格式」就万事大吉。Excel 单元格格式是显示层的，底层存储仍可能是数字。pandas 读取时依据的是单元格的「值类型」，不是「显示格式」。\n\n实施场景注意：HCM 实施中，工号、身份证号、银行卡号、社保编号这类「看起来是数字但实际是字符串」的字段非常多。从客户 Excel 导入数据时，第一件事就是把这些字段全部 dtype=str。身份证号尤其要小心：18 位身份证转 int 后超出范围会变科学计数法（1.234e+17），末尾几位精度直接丢失，且不可逆。这是数据迁移最经典也最致命的 bug 之一。"
     }
   ]
 }
