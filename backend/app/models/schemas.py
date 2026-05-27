@@ -154,3 +154,63 @@ class JudgeResponse(BaseModel):
     hint: Optional[str] = None
     answer: None = None
     real_world_link: Optional[str] = None
+
+
+# ── HCM 实战相关模型 ─────────────────────────────────────────────────────────
+
+class HcmSchemaField(BaseModel):
+    """表结构字段描述"""
+    column: str
+    type: str
+    comment: str
+
+
+class HcmProblemSummary(BaseModel):
+    """HCM 实战题目列表项（不含题目正文和答案）"""
+    id: str
+    title: str
+    language: str
+    tags: list[str]
+
+
+class HcmProblemDetail(BaseModel):
+    """HCM 实战题目详情（不含 answer/expected_rows/setup_sql/bug_essence）"""
+    id: str
+    title: str
+    language: str
+    tags: list[str]
+    scenario: str
+    schema: list[HcmSchemaField]
+    sample_data: list[dict]
+    expected_output: str
+    code: Optional[str] = None
+
+
+class HcmAnswerResponse(BaseModel):
+    """题目完整解答响应"""
+    problem_id: str
+    answer: str
+
+
+class HcmJudgeRequest(BaseModel):
+    """HCM 实战答题提交请求"""
+    problem_id: str
+    language: Literal["sql", "python"]
+    user_code: str = Field(..., min_length=1, description="SQL 语句或修复后的 Python 代码")
+    user_explanation: str = Field(default="", description="Python 题必填说明，SQL 题可为空")
+
+    @field_validator("user_explanation")
+    @classmethod
+    def explanation_required_for_python(cls, v: str, info) -> str:
+        if info.data.get("language") == "python" and len(v.strip()) < 5:
+            raise ValueError("Python 题的说明不能少于 5 个字符")
+        return v
+
+
+class HcmJudgeResponse(BaseModel):
+    """HCM 实战判分响应（SQL 精确 + Python AI 共用）"""
+    verdict: Literal["correct", "wrong", "partial", "error"]
+    score: int = Field(..., ge=0, le=100)
+    feedback: str
+    hint: Optional[str] = None
+    real_world_link: Optional[str] = None

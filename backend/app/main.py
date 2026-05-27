@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
 from app.api.bug_hunt import bug_hunt_router
+from app.api.hcm_practice import hcm_practice_router
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -33,6 +34,7 @@ app.add_middleware(
 # Requirements: 9.1
 app.include_router(router)
 app.include_router(bug_hunt_router)
+app.include_router(hcm_practice_router)
 
 
 @app.get("/")
