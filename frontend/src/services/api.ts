@@ -13,6 +13,11 @@ import type {
   JudgeRequest,
   JudgeResponse,
   AnswerResponse,
+  HcmProblemSummary,
+  HcmProblemDetail,
+  HcmJudgeRequest,
+  HcmJudgeResponse,
+  HcmAnswerResponse,
 } from '../types';
 
 /**
@@ -147,6 +152,36 @@ class ApiService {
 
   async getBugHuntAnswer(id: string): Promise<AnswerResponse> {
     const response = await fetch(`${this.baseURL}/api/bug-hunt/problems/${id}/answer`);
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
+  }
+
+  // ── HCM 实战（阶段 3）────────────────────────────────────────────────────────
+
+  async getHcmProblems(): Promise<HcmProblemSummary[]> {
+    const response = await fetch(`${this.baseURL}/api/hcm-practice/problems`);
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
+  }
+
+  async getHcmProblem(id: string): Promise<HcmProblemDetail> {
+    const response = await fetch(`${this.baseURL}/api/hcm-practice/problems/${id}`);
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
+  }
+
+  async judgeHcm(req: HcmJudgeRequest): Promise<HcmJudgeResponse> {
+    const response = await fetch(`${this.baseURL}/api/hcm-practice/judge`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    });
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    return response.json();
+  }
+
+  async getHcmAnswer(id: string): Promise<HcmAnswerResponse> {
+    const response = await fetch(`${this.baseURL}/api/hcm-practice/problems/${id}/answer`);
     if (!response.ok) throw new Error(`请求失败: ${response.status}`);
     return response.json();
   }

@@ -144,6 +144,53 @@ export interface AnswerResponse {
   answer: string;
 }
 
+// ── HCM 实战（阶段 3）────────────────────────────────────────────────────────
+
+export interface HcmSchemaField {
+  column: string;
+  type: string;
+  comment: string;
+}
+
+export interface HcmProblemSummary {
+  id: string;
+  title: string;
+  language: string;
+  tags: string[];
+}
+
+export interface HcmProblemDetail {
+  id: string;
+  title: string;
+  language: string;
+  tags: string[];
+  scenario: string;
+  schema: HcmSchemaField[];
+  sample_data: Record<string, unknown>[];
+  expected_output: string;
+  code: string | null;
+}
+
+export interface HcmJudgeRequest {
+  problem_id: string;
+  language: 'sql' | 'python';
+  user_code: string;
+  user_explanation?: string;
+}
+
+export interface HcmJudgeResponse {
+  verdict: 'correct' | 'wrong' | 'partial' | 'error';
+  score: number;
+  feedback: string;
+  hint: string | null;
+  real_world_link: string | null;
+}
+
+export interface HcmAnswerResponse {
+  problem_id: string;
+  answer: string;
+}
+
 // ── 知识补给站 AI 讲解（阶段 1）──────────────────────────────────────────────
 
 /**
