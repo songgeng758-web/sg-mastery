@@ -1,0 +1,98 @@
+{
+  "problems": [
+    {
+      "id": "hp_001",
+      "title": "查出本月新入职员工名单",
+      "language": "sql",
+      "tags": ["date", "filter", "HCM入职"],
+      "scenario": "你在某客户现场做 HCM 系统上线验收，HR 负责人要求你从员工表中查出本月（2024 年 3 月）新入职的所有员工工号和姓名。",
+      "schema": [
+        {"column": "emp_id",     "type": "TEXT",         "comment": "员工工号，主键"},
+        {"column": "emp_name",   "type": "TEXT",         "comment": "员工姓名"},
+        {"column": "dept_name",  "type": "TEXT",         "comment": "部门名称"},
+        {"column": "entry_date", "type": "TEXT",         "comment": "入职日期，格式 YYYY-MM-DD"},
+        {"column": "status",     "type": "TEXT",         "comment": "在职状态，active / resigned"}
+      ],
+      "sample_data": [
+        {"emp_id": "E001", "emp_name": "张伟", "dept_name": "人力资源部", "entry_date": "2024-03-05", "status": "active"},
+        {"emp_id": "E002", "emp_name": "李娜", "dept_name": "财务部",     "entry_date": "2023-11-20", "status": "active"},
+        {"emp_id": "E003", "emp_name": "王芳", "dept_name": "信息技术部", "entry_date": "2024-03-18", "status": "active"},
+        {"emp_id": "E004", "emp_name": "赵磊", "dept_name": "人力资源部", "entry_date": "2024-02-28", "status": "active"},
+        {"emp_id": "E005", "emp_name": "陈静", "dept_name": "财务部",     "entry_date": "2024-03-01", "status": "resigned"}
+      ],
+      "expected_output": "HR 要求：列出 2024 年 3 月新入职的员工工号和姓名，按入职日期升序，用于核对纸质入职档案。",
+      "result_ordered": true,
+      "expected_rows": [
+        {"emp_id": "E005", "emp_name": "陈静"},
+        {"emp_id": "E001", "emp_name": "张伟"},
+        {"emp_id": "E003", "emp_name": "王芳"}
+      ],
+      "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, dept_name TEXT, entry_date TEXT, status TEXT);\nINSERT INTO employees VALUES ('E001', '张伟', '人力资源部', '2024-03-05', 'active');\nINSERT INTO employees VALUES ('E002', '李娜', '财务部', '2023-11-20', 'active');\nINSERT INTO employees VALUES ('E003', '王芳', '信息技术部', '2024-03-18', 'active');\nINSERT INTO employees VALUES ('E004', '赵磊', '人力资源部', '2024-02-28', 'active');\nINSERT INTO employees VALUES ('E005', '陈静', '财务部', '2024-03-01', 'resigned');",
+      "code": null,
+      "expected_bug_lines": null,
+      "bug_essence": null,
+      "answer": "这道题有三种等价写法，各有取舍：\n\n写法 1  LIKE '2024-03-%'：最简洁，但依赖日期格式严格为 YYYY-MM-DD，若 HCM 导出数据格式不规整（如 2024/3/1）会失效。\n\n写法 2  strftime('%Y-%m', entry_date) = '2024-03'：SQLite 内置函数，语义清晰，但换成 MySQL/Oracle 需改函数名（MySQL 用 DATE_FORMAT，Oracle 用 TO_CHAR），移植性差。\n\n写法 3  entry_date >= '2024-03-01' AND entry_date < '2024-04-01'：最通用，所有关系型数据库都支持，也最容易被索引命中，实际工作中推荐这种写法。\n\n实施场景注意：'入职过' ≠ '当前在职'。HR 核对入职档案要的是所有 3 月入职的人，包括当月入职后又离职的（E005 陈静），不能加 status='active' 过滤。"
+    },
+    {
+      "id": "hp_002",
+      "title": "统计各部门在职人数",
+      "language": "sql",
+      "tags": ["aggregate", "GROUP BY", "HCM组织架构"],
+      "scenario": "系统上线前，HR 主管要核查各部门人员编制是否与纸质花名册一致。请统计每个部门当前在职员工数量，结果不限排序。",
+      "schema": [
+        {"column": "emp_id",     "type": "TEXT", "comment": "员工工号，主键"},
+        {"column": "emp_name",   "type": "TEXT", "comment": "员工姓名"},
+        {"column": "dept_name",  "type": "TEXT", "comment": "部门名称"},
+        {"column": "entry_date", "type": "TEXT", "comment": "入职日期，格式 YYYY-MM-DD"},
+        {"column": "status",     "type": "TEXT", "comment": "在职状态，active / resigned"}
+      ],
+      "sample_data": [
+        {"emp_id": "E001", "emp_name": "张伟", "dept_name": "人力资源部", "entry_date": "2023-05-10", "status": "active"},
+        {"emp_id": "E002", "emp_name": "李娜", "dept_name": "财务部",     "entry_date": "2022-08-15", "status": "active"},
+        {"emp_id": "E003", "emp_name": "王芳", "dept_name": "信息技术部", "entry_date": "2023-03-20", "status": "active"},
+        {"emp_id": "E004", "emp_name": "赵磊", "dept_name": "人力资源部", "entry_date": "2021-11-01", "status": "active"},
+        {"emp_id": "E005", "emp_name": "陈静", "dept_name": "财务部",     "entry_date": "2020-06-30", "status": "resigned"},
+        {"emp_id": "E006", "emp_name": "刘洋", "dept_name": "信息技术部", "entry_date": "2023-09-12", "status": "active"},
+        {"emp_id": "E007", "emp_name": "周梅", "dept_name": "人力资源部", "entry_date": "2024-01-08", "status": "active"}
+      ],
+      "expected_output": "HR 要求：统计各部门当前在职（status='active'）员工人数，返回部门名称和人数，不限排序。",
+      "result_ordered": false,
+      "expected_rows": [
+        {"dept_name": "人力资源部", "headcount": 3},
+        {"dept_name": "财务部",     "headcount": 1},
+        {"dept_name": "信息技术部", "headcount": 2}
+      ],
+      "setup_sql": "CREATE TABLE employees (emp_id TEXT PRIMARY KEY, emp_name TEXT, dept_name TEXT, entry_date TEXT, status TEXT);\nINSERT INTO employees VALUES ('E001', '张伟', '人力资源部', '2023-05-10', 'active');\nINSERT INTO employees VALUES ('E002', '李娜', '财务部', '2022-08-15', 'active');\nINSERT INTO employees VALUES ('E003', '王芳', '信息技术部', '2023-03-20', 'active');\nINSERT INTO employees VALUES ('E004', '赵磊', '人力资源部', '2021-11-01', 'active');\nINSERT INTO employees VALUES ('E005', '陈静', '财务部', '2020-06-30', 'resigned');\nINSERT INTO employees VALUES ('E006', '刘洋', '信息技术部', '2023-09-12', 'active');\nINSERT INTO employees VALUES ('E007', '周梅', '人力资源部', '2024-01-08', 'active');",
+      "code": null,
+      "expected_bug_lines": null,
+      "bug_essence": null,
+      "answer": "核心是 GROUP BY + COUNT，用 WHERE 先过滤再聚合：\n\nSELECT dept_name, COUNT(*) AS headcount\nFROM employees\nWHERE status = 'active'\nGROUP BY dept_name\n\n常见误区：把过滤条件写进 HAVING——HAVING 用于过滤聚合后的结果（如 HAVING COUNT(*) > 2），WHERE 用于过滤原始行。这里要在聚合前排除离职员工，必须用 WHERE。\n\n实施场景注意：浪潮 HCM 的组织架构报表经常需要这类统计。如果 status 字段值不统一（如混有 'Active'、'在职'、'active' 等写法），COUNT 结果会不准——上线前一定要在 HCM 数据字典里统一枚举值。"
+    },
+    {
+      "id": "hp_003",
+      "title": "修复员工薪资缺失检测脚本",
+      "language": "python",
+      "tags": ["pandas", "NaN", "数据清洗", "HCM薪资"],
+      "scenario": "你在做 HCM 系统数据迁移，需要从旧系统导出的员工薪资表中找出薪资未录入的员工并标记。同事写了一段脚本，但运行后发现没有任何员工被标记——帮他找出并修复代码中的问题。",
+      "schema": [
+        {"column": "emp_id",         "type": "str",        "comment": "员工工号"},
+        {"column": "emp_name",       "type": "str",        "comment": "员工姓名"},
+        {"column": "monthly_salary", "type": "float / NaN","comment": "月薪，未录入时为 NaN"}
+      ],
+      "sample_data": [
+        {"emp_id": "E001", "emp_name": "张伟", "monthly_salary": 8000},
+        {"emp_id": "E002", "emp_name": "李娜", "monthly_salary": null},
+        {"emp_id": "E003", "emp_name": "王芳", "monthly_salary": 6500},
+        {"emp_id": "E004", "emp_name": "赵磊", "monthly_salary": null}
+      ],
+      "expected_output": "找出 monthly_salary 为 NaN 的员工（E002 李娜、E004 赵磊），在 flag 列标记为'薪资待录入'，打印这两名员工的工号和姓名。",
+      "result_ordered": null,
+      "expected_rows": null,
+      "setup_sql": null,
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'emp_id':         ['E001', 'E002', 'E003', 'E004'],\n    'emp_name':       ['张伟',  '李娜',  '王芳',  '赵磊'],\n    'monthly_salary': [8000,   None,   6500,   None]\n})\n\n# 找出薪资缺失的员工，标记为'薪资待录入'\nmissing_mask = df['monthly_salary'] == None   # 第10行\ndf['flag'] = ''\ndf[missing_mask]['flag'] = '薪资待录入'        # 第12行\n\nprint(df[df['flag'] == '薪资待录入'][['emp_id', 'emp_name']])",
+      "expected_bug_lines": [10, 12],
+      "bug_essence": "第10行用 == None 比较 NaN，NaN 和任何值（包括自身）比较都返回 False，正确方法是 pd.isna()；第12行对切片结果链式赋值，pandas 会在 copy 上修改而非原始 df，应使用 df.loc[missing_mask, 'flag'] 原地赋值",
+      "answer": "第10行问题：df['monthly_salary'] == None 永远返回全 False。NaN（Not a Number）在 Python/pandas 中不等于任何值，包括自身（NaN == NaN 也是 False）。检测缺失值必须用 pd.isna() 或 df['monthly_salary'].isna()。\n\n第12行问题：df[missing_mask]['flag'] = '薪资待录入' 是链式赋值。df[missing_mask] 返回的是原始 df 的副本（copy），对副本赋值不会改变原始 df，还会触发 SettingWithCopyWarning。应改用 df.loc[missing_mask, 'flag'] = '薪资待录入'。\n\n修复后正确写法：\nmissing_mask = pd.isna(df['monthly_salary'])\ndf['flag'] = ''\ndf.loc[missing_mask, 'flag'] = '薪资待录入'\nprint(df[df['flag'] == '薪资待录入'][['emp_id', 'emp_name']])\n\n实施场景注意：HCM 系统导出的薪资表，未录入薪资的字段是 NaN，不是空字符串也不是字符串 'None'。用 == '' 或 == None 都查不出来，必须用 pd.isna()。这是 pandas 新手最容易踩的坑之一。"
+    }
+  ]
+}
