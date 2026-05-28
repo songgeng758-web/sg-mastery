@@ -22,9 +22,11 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Vite default development server port
-        "http://127.0.0.1:5173",  # Alternative localhost format
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://sg-mastery.vercel.app",
     ],
+    allow_origin_regex=r"https://sg-mastery-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
